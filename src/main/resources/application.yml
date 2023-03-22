@@ -1,0 +1,27 @@
+server:
+  port: '8090'
+
+eureka:
+  instance:
+    prefer-ip-address: 'true'
+  client:
+    service-url-defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: servicio-gateway-server
+  cloud:
+    gateway:
+      routes:
+        - id: servicio-productos
+          uri: 'lb://servicio-productos'
+          predicates:
+            - Path=/api/productos/**
+          Filters:
+            - StripPrefix=2
+        - id: servicio-items
+          uri: 'lb://servicio-items'
+          predicates:
+            - Path=/api/items/**
+          Filters:
+            - StripPrefix=2
