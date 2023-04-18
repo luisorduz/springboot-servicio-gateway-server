@@ -7,6 +7,27 @@ eureka:
   client:
     service-url-defaultZone: http://localhost:8761/eureka
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      defecto:
+        sliding-window-size: 6
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 20s
+        permitted-number-of-calls-in-half-open-state: 4
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+    instances:
+      productos:
+        base-config: defecto
+  timelimiter:
+    configs:
+      defecto:
+        timeout-duration: 6s
+    instances:
+      productos:
+        base-config: defecto
+
 spring:
   application:
     name: servicio-gateway-server
@@ -22,7 +43,12 @@ spring:
 #            - Method= GET, POST
 #            - Query=color, verde
 #            - Cookie=color, azul
-          Filters:
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productos
+                statusCodes: 500
+                fallbackUri: forward:/api/items/ver/9/cantidad/5
             - StripPrefix=2
             - EjemploCookie=Hola mi filtro order, usuariOrder, AndresOrder
 #            - name: Ejemplo
@@ -38,5 +64,5 @@ spring:
             - StripPrefix=2
             - AddRequestHeader=token-request, 123456
             - AddResponseHeader=token-response, 789
-            - SetResponseHeader=Content-type, text/plain
+            # - SetResponseHeader=Content-type, text/plain
             - AddRequestParameter=nombre, andres
